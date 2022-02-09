@@ -8,11 +8,25 @@ version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://frcmaven.wpi.edu/artifactory/release/"
+    }
 }
 
 dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    implementation 'edu.wpi.first.wpilibj:wpilibj-java:2022.3.1'
+
+    implementation 'io.ktor:ktor-server-core:1.6.7'
+    implementation 'io.ktor:ktor-server-netty:1.6.7'
+    implementation 'io.ktor:ktor-jackson:1.6.7'
+
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.1'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.1'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1'
 }
+
 
 test {
     useJUnitPlatform()

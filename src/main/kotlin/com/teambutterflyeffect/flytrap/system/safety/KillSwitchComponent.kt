@@ -5,8 +5,10 @@ import com.teambutterflyeffect.flytrap.system.lifecycle.ObjectContext
 
 class KillSwitchComponent(context: LifecycleContext) : IKillSwitchComponent(context) {
     override fun activate() {
-        KILL_SWITCH_STATE.data = KillSwitchState.ACTIVE
+        UniversalKillSwitch.activate()
     }
+
+
 
     override fun onTick(context: ObjectContext<*>) { }
 }
