@@ -3,6 +3,7 @@ package com.teambutterflyeffect.flytrap.system.lifecycle
 import com.teambutterflyeffect.flytrap.system.lifecycle.data.ObjectMessage
 import com.teambutterflyeffect.flytrap.system.error.UnknownLifecycleObjectConstructorException
 import com.teambutterflyeffect.flytrap.system.lifecycle.objects.ObjectReference
+import kotlinx.coroutines.runBlocking
 import java.util.*
 import kotlin.collections.HashSet
 
@@ -33,9 +34,11 @@ object LifecycleContext {
     }
 
     @Synchronized
-    internal fun reset() {
+    internal fun shutdown() {
         objects.forEach {
-            it.value.destroy()
+            runBlocking {
+                it.value.destroy()
+            }
         }
         objects.clear()
         classes.clear()

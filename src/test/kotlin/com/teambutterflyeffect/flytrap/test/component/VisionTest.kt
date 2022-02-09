@@ -29,7 +29,7 @@ class VisionTest {
 
     @AfterTest
     fun reset() {
-        LifecycleContext.reset()
+        LifecycleContext.shutdown()
     }
 
     @Test

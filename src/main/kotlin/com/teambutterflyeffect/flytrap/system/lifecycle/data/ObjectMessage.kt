@@ -4,7 +4,11 @@ import com.teambutterflyeffect.flytrap.system.lifecycle.objects.Intent
 
 open class ObjectMessage (
     val intent: Intent,
-)
+) {
+    fun filterAndRun(filter: MessageFilter, func: Function<Unit>) {
+
+    }
+}
 
 open class DataMessage<V: Any> (
     intent: Intent,

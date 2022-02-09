@@ -25,7 +25,7 @@ class MessengerTest {
 
     @AfterTest
     fun cleanUp() {
-        LifecycleContext.reset()
+        LifecycleContext.shutdown()
     }
 
     @Test

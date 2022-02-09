@@ -6,8 +6,7 @@ import com.teambutterflyeffect.flytrap.system.lifecycle.objects.ExternalReferenc
 
 class InputChannelReference(objectClass: Class<InputChannel>): ExternalReference<InputChannel>(
     objectClass
-) {
-}
+)
 
 abstract class InputChannel(val id: Int, initialData: Double? = null): Ticker {
     open var data: Double = 0.0
@@ -20,3 +19,5 @@ abstract class InputChannel(val id: Int, initialData: Double? = null): Ticker {
 
     abstract override fun onTick(context: ObjectContext<*>)
 }
+
+open class StaticInputChannel(val id: Int, val data: Double)
