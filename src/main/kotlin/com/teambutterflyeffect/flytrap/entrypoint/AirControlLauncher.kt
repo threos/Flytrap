@@ -1,5 +1,3 @@
-import com.teambutterflyeffect.flytrap.base.Robot
-import com.teambutterflyeffect.flytrap.base.runFlytrapRobot
 import com.teambutterflyeffect.flytrap.component.aircontrol.AirControlModule
 import com.teambutterflyeffect.flytrap.component.fvm2.FlytrapVisionModule
 import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleContext
