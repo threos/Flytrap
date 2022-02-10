@@ -5,8 +5,8 @@ import com.teambutterflyeffect.flytrap.system.lifecycle.objects.Intent
 open class ObjectMessage (
     val intent: Intent,
 ) {
-    fun filterAndRun(filter: MessageFilter, func: Function<Unit>) {
-
+    fun runWhen(filter: MessageFilter, func: () -> Unit) {
+        if(filter(this)) func()
     }
 }
 
