@@ -1,8 +1,11 @@
 package com.teambutterflyeffect.flytrap.system.wpilink
 
 import com.teambutterflyeffect.flytrap.base.FlytrapRobot
+import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleObject
+import com.teambutterflyeffect.flytrap.system.lifecycle.objects.ObjectReference
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.TimedRobot
+import java.util.*
 
 object WPILinker {
     fun launchWPIRobot(robot: FlytrapRobot) {
@@ -13,10 +16,12 @@ object WPILinker {
 }
 
 class WPILinkRobot(private val flytrapRobot: FlytrapRobot) : TimedRobot(0.02) {
+    val components = IdentityHashMap<FlytrapRobot.RobotMode, ObjectReference<out LifecycleObject>>()
+
     override fun disabledInit() {
         super.disabledInit()
         FlytrapRobot.RobotMode.values().forEach {
-            if(it != FlytrapRobot.RobotMode.TELEOP) emit(it, FlytrapRobot.RobotEvent.EXIT)
+            if (it != FlytrapRobot.RobotMode.TELEOP) emit(it, FlytrapRobot.RobotEvent.EXIT)
         }
     }
 
@@ -25,8 +30,6 @@ class WPILinkRobot(private val flytrapRobot: FlytrapRobot) : TimedRobot(0.02) {
         super.robotPeriodic()
         flytrapRobot.context.periodTick()
     }
-
-
 
     override fun simulationInit() = emit(FlytrapRobot.RobotMode.SIMULATION, FlytrapRobot.RobotEvent.INIT)
 
@@ -41,18 +44,20 @@ class WPILinkRobot(private val flytrapRobot: FlytrapRobot) : TimedRobot(0.02) {
 
     @Synchronized
     fun emit(mode: FlytrapRobot.RobotMode, state: FlytrapRobot.RobotEvent) {
-        val component = flytrapRobot.let {
-            when(mode) {
-                FlytrapRobot.RobotMode.ROBOT -> it.robotComponent()
-                FlytrapRobot.RobotMode.SIMULATION -> it.simulationComponent()
-                FlytrapRobot.RobotMode.TELEOP -> it.teleopComponent()
-                FlytrapRobot.RobotMode.AUTONOMOUS -> it.autonomousComponent()
-                FlytrapRobot.RobotMode.TEST -> it.testComponent()
+        val component = components.getOrPut(mode) {
+            flytrapRobot.let {
+                when (mode) {
+                    FlytrapRobot.RobotMode.ROBOT -> it.robotComponent()
+                    FlytrapRobot.RobotMode.SIMULATION -> it.simulationComponent()
+                    FlytrapRobot.RobotMode.TELEOP -> it.teleopComponent()
+                    FlytrapRobot.RobotMode.AUTONOMOUS -> it.autonomousComponent()
+                    FlytrapRobot.RobotMode.TEST -> it.testComponent()
+                }
             }
         }
 
         state.run {
-            when(this) {
+            when (this) {
                 FlytrapRobot.RobotEvent.INIT -> {
                     flytrapRobot.context.attach(component)
                 }
