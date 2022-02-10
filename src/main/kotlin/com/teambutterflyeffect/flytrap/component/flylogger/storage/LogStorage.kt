@@ -29,13 +29,11 @@ object LogStorage {
     }
 
     fun append(item: LogItem) {
-        //log(TAG, "Appending log item", internal = true)
         data.messages.add(item)
         commit()
     }
 
     private fun commit() = runBlocking {
-        //log(TAG, "Committing to file: $file", internal = true)
         mapper.writeValue(file, data)
     }
 }

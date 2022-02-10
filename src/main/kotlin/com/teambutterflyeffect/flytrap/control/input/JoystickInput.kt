@@ -9,13 +9,13 @@ import com.teambutterflyeffect.flytrap.system.state.cubit.MultiStateCubit
 import edu.wpi.first.wpilibj.Joystick
 
 class JoystickInput(port: Int, context: LifecycleContext) : BaseInput<InputChannel>(context) {
-    val state = JoystickInputState(port, context)
-    val joystick = Joystick(port)
+    private val state = JoystickInputState(port, context)
+    private val joystick = Joystick(port)
 
-    val buttons = Joystick.ButtonType.values().map {
+    private val buttons = Joystick.ButtonType.values().map {
         ExternalValueReference(it.value, Int::class.java)
     }
-    val axes = Joystick.AxisType.values().map {
+    private val axes = Joystick.AxisType.values().map {
         ExternalValueReference(it.value, Int::class.java)
     }
 
@@ -34,7 +34,7 @@ class JoystickInput(port: Int, context: LifecycleContext) : BaseInput<InputChann
     }
 }
 
-class JoystickInputState(val port: Int, val context: LifecycleContext) : MultiStateCubit<Int, Double>() {
+class JoystickInputState(private val port: Int, val context: LifecycleContext) : MultiStateCubit<Int, Double>() {
     override fun update(context: ObjectContext<*>, reference: ExternalValueReference<out Int>, value: Double) {
         this@JoystickInputState.context.post(
             InputChannelMessage(
