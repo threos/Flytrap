@@ -1,7 +1,6 @@
 package com.teambutterflyeffect.flytrap.component.driverassist.targetgravity
 
 import kotlin.math.hypot
-import kotlin.math.sqrt
 
 object GravityComposer {
     fun compose(
