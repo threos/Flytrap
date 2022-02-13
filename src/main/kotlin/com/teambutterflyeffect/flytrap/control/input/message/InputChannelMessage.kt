@@ -8,4 +8,4 @@ class InputChannelMessage(
     val port: Int,
     val channel: StaticInputChannel,
     intent: Intent,
-) : ObjectMessage(intent)
+) : ObjectMessage(intent, 200)
