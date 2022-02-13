@@ -9,7 +9,18 @@ import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 
-abstract class MultimethodServer(context: LifecycleContext, private val port: Int, private val gracePeriodMillis: Long = 5000, private val destroyTimeout: Long = 15000) : LifecycleObject(context) {
+/**
+ * @param teamNumber your 4 digit team number for team ip notation. pad with 0s if your team number contains 3 or less digits. 123 -> "0123"
+ */
+abstract class MultimethodServer(
+    context: LifecycleContext,
+    private val teamNumber: String,
+    private val deviceNumber: Int = 12,
+    private val hostOverride: String = "10.${teamNumber[0]}${teamNumber[1]}.${teamNumber[2]}${teamNumber[3]}.$deviceNumber",
+    private val port: Int,
+    private val gracePeriodMillis: Long = 5000,
+    private val destroyTimeout: Long = 15000
+) : LifecycleObject(context) {
     open val TAG = "MultimethodServer"
 
     override fun onTick(context: ObjectContext<*>) {}
@@ -19,8 +30,12 @@ abstract class MultimethodServer(context: LifecycleContext, private val port: In
     override fun onCreate(context: ObjectContext<*>) {
         super.onCreate(context)
 
-        engine = embeddedServer(Netty, port = port) {
-            log(TAG, "Configure embedded server on port: $port")
+        engine = embeddedServer(
+            Netty,
+            host=  hostOverride,
+            port = port,
+        ) {
+            log(TAG, "Configure embedded server on host: $hostOverride:$port")
             configure(this)
             routing {
                 log(TAG, "Set embedded server routing")
