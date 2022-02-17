@@ -2,6 +2,7 @@ package com.teambutterflyeffect.flytrap.system.lifecycle
 
 import com.teambutterflyeffect.flytrap.system.lifecycle.data.ObjectMessage
 import com.teambutterflyeffect.flytrap.system.error.UnknownLifecycleObjectConstructorException
+import com.teambutterflyeffect.flytrap.system.execution.engine.FlytrapExecutor
 import com.teambutterflyeffect.flytrap.system.lifecycle.objects.ObjectReference
 import kotlinx.coroutines.runBlocking
 import java.util.*
@@ -14,6 +15,10 @@ object LifecycleContext {
         HashMap()
     private val subscribers: MutableMap<Class<out ObjectMessage>, MutableSet<ObjectReference<out LifecycleObject>>> =
         HashMap()
+
+    internal fun getObjects(): Collection<ObjectParent<out LifecycleObject>> {
+        return objects.values
+    }
 
     fun <T : ObjectMessage> post(message: T) {
         if (message.intent.target == null) {
@@ -90,9 +95,10 @@ object LifecycleContext {
     }
 
     internal fun periodTick() {
-        objects.forEach { (_, u) ->
-            u.tick()
-        }
+        /*objects.values.forEach {
+            it.tick()
+        }*/
+        FlytrapExecutor.tickerProvider.hit()
     }
 
     fun <T : LifecycleObject> detach(objectReference: ObjectReference<T>) {

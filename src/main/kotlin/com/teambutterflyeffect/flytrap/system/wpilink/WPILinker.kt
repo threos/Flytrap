@@ -1,6 +1,7 @@
 package com.teambutterflyeffect.flytrap.system.wpilink
 
 import com.teambutterflyeffect.flytrap.base.FlytrapRobot
+import com.teambutterflyeffect.flytrap.component.flylogger.log
 import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleObject
 import com.teambutterflyeffect.flytrap.system.lifecycle.objects.ObjectReference
 import edu.wpi.first.wpilibj.RobotBase
@@ -16,16 +17,17 @@ object WPILinker {
 }
 
 class WPILinkRobot(private val flytrapRobot: FlytrapRobot) : TimedRobot(0.02) {
+    val TAG = "WPILinkRobot"
     val components = IdentityHashMap<FlytrapRobot.RobotMode, ObjectReference<out LifecycleObject>>()
 
     override fun disabledInit() {
         super.disabledInit()
         FlytrapRobot.RobotMode.values().forEach {
-            if (it != FlytrapRobot.RobotMode.TELEOP) emit(it, FlytrapRobot.RobotEvent.EXIT)
+            if(it != FlytrapRobot.RobotMode.ROBOT) emit(it, FlytrapRobot.RobotEvent.EXIT)
         }
     }
 
-    override fun robotInit() = emit(FlytrapRobot.RobotMode.TELEOP, FlytrapRobot.RobotEvent.INIT)
+    override fun robotInit() = emit(FlytrapRobot.RobotMode.ROBOT, FlytrapRobot.RobotEvent.INIT)
     override fun robotPeriodic() {
         super.robotPeriodic()
         flytrapRobot.context.periodTick()
@@ -36,14 +38,25 @@ class WPILinkRobot(private val flytrapRobot: FlytrapRobot) : TimedRobot(0.02) {
     override fun teleopInit() = emit(FlytrapRobot.RobotMode.TELEOP, FlytrapRobot.RobotEvent.INIT)
     override fun teleopExit() = emit(FlytrapRobot.RobotMode.TELEOP, FlytrapRobot.RobotEvent.EXIT)
 
-    override fun autonomousInit() = emit(FlytrapRobot.RobotMode.AUTONOMOUS, FlytrapRobot.RobotEvent.EXIT)
+    override fun autonomousInit() = emit(FlytrapRobot.RobotMode.AUTONOMOUS, FlytrapRobot.RobotEvent.INIT)
     override fun autonomousExit() = emit(FlytrapRobot.RobotMode.AUTONOMOUS, FlytrapRobot.RobotEvent.EXIT)
 
     override fun testInit() = emit(FlytrapRobot.RobotMode.TEST, FlytrapRobot.RobotEvent.INIT)
     override fun testExit() = emit(FlytrapRobot.RobotMode.TEST, FlytrapRobot.RobotEvent.EXIT)
 
+    override fun simulationPeriodic() {}
+
+    override fun disabledPeriodic() {}
+
+    override fun autonomousPeriodic() {}
+
+    override fun teleopPeriodic() {}
+
+    override fun testPeriodic() {}
+
     @Synchronized
     fun emit(mode: FlytrapRobot.RobotMode, state: FlytrapRobot.RobotEvent) {
+        log(TAG, "Emit FlytrapRobot state. Mode: $mode Event: $state")
         val component = components.getOrPut(mode) {
             flytrapRobot.let {
                 when (mode) {
