@@ -2,6 +2,7 @@ package com.teambutterflyeffect.flytrap.base
 
 import com.teambutterflyeffect.flytrap.component.flylogger.LogLevel
 import com.teambutterflyeffect.flytrap.component.flylogger.log
+import com.teambutterflyeffect.flytrap.system.execution.engine.FlytrapExecutor
 import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleContext
 import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleObject
 import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleProvider
@@ -13,6 +14,8 @@ import edu.wpi.first.wpilibj.TimedRobot
 
 fun runFlytrapRobot(robotClass: Class<out FlytrapRobot>) {
     val flytrapInstance = FlytrapInstance()
+
+    FlytrapExecutor.init()
 
     WPILinker.launchWPIRobot(
         robotClass.getDeclaredConstructor(

@@ -32,7 +32,6 @@ abstract class MultimethodServer(
 
         engine = embeddedServer(
             Netty,
-            host=  hostOverride,
             port = port,
         ) {
             log(TAG, "Configure embedded server on host: $hostOverride:$port")

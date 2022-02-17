@@ -17,7 +17,7 @@ import io.ktor.routing.*
 const val port = 9319
 
 class DebugServer(context: LifecycleContext) :
-    MultimethodServer(context, port) {
+    MultimethodServer(context, port = port, teamNumber = "8034") {
 
     override val TAG = "DebugServer"
 

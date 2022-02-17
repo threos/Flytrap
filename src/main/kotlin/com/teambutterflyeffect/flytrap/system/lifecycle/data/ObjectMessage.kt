@@ -6,7 +6,7 @@ open class ObjectMessage (
     val intent: Intent,
     timeoutInMillis: Long? = null,
 ) {
-    private val validUntil = timeoutInMillis?.let { it + System.currentTimeMillis() }
+    val validUntil = timeoutInMillis?.let { it + System.currentTimeMillis() }
 
     fun runWhen(filter: MessageFilter, func: () -> Unit) {
         if(filter(this)) func()

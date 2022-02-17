@@ -14,10 +14,10 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 
-const val port = 2542
+const val port = 5800
 
 class LogServer(context: LifecycleContext) :
-    MultimethodServer(context, port) {
+    MultimethodServer(context, port = port, teamNumber = "8034", gracePeriodMillis = 1000, destroyTimeout = 5000) {
 
     override val TAG = "LogServer"
 

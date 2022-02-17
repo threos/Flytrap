@@ -9,12 +9,6 @@ import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleContext
 import com.teambutterflyeffect.flytrap.system.lifecycle.objects.ObjectReference
 import com.teambutterflyeffect.flytrap.test.lifecycle.objects.TransparentMessageReceiverTestObject
 import org.junit.jupiter.api.Test
-import java.awt.Color
-import java.awt.Graphics
-import javax.swing.JButton
-import javax.swing.JFrame
-import javax.swing.JPanel
-import javax.swing.WindowConstants
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 
@@ -23,17 +17,13 @@ const val TAG = "VisionTest"
 class VisionTest {
     @BeforeTest
     fun attach() {
-        LifecycleContext.attach(ObjectReference(FlytrapVisionModule::class.java))
+        //LifecycleContext.attach(ObjectReference(FlytrapVisionModule::class.java))
         LifecycleContext.attach(ObjectReference(TransparentMessageReceiverTestObject::class.java))
     }
 
     @AfterTest
     fun reset() {
         LifecycleContext.shutdown()
-    }
-
-    @Test
-    fun visionServerMustBroadcastMessage() {
     }
 
     @Test
@@ -52,7 +42,7 @@ class VisionTest {
 
         assert(val2 > val1)
 
-        Thread.sleep(60000)
+        Thread.sleep(500)
     }
 
 }

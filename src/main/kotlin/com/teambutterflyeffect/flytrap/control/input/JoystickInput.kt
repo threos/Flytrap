@@ -7,10 +7,11 @@ import com.teambutterflyeffect.flytrap.system.lifecycle.objects.ExternalValueRef
 import com.teambutterflyeffect.flytrap.system.lifecycle.objects.Intents
 import com.teambutterflyeffect.flytrap.system.state.cubit.MultiStateCubit
 import edu.wpi.first.wpilibj.Joystick
+import edu.wpi.first.wpilibj.XboxController
 
 class JoystickInput(port: Int, context: LifecycleContext) : BaseInput<InputChannel>(context) {
     private val state = JoystickInputState(port, context)
-    private val joystick = Joystick(port)
+    private val joystick = XboxController(port)
 
     private val buttons = Joystick.ButtonType.values().map {
         ExternalValueReference(it.value, Int::class.java)

@@ -5,7 +5,7 @@ import kotlin.math.hypot
 object GravityComposer {
     fun compose(
         points: List<GravityObject>,
-        observer: Point = Point(0.5f, 0f)
+        observer: Point = Point(1f, 0f),
     ): GravityForce {
         return points.map {
             observer.relativePositionOf(it)
@@ -36,7 +36,7 @@ open class GravityObject(
     val mass: Float,
 ): Point(x, y) {
 
-    fun force(): Float = (mass / squareF(distance()))
+    fun force(): Float = (mass / distance())
 
     private fun squareF(a: Float): Float = a * a
 

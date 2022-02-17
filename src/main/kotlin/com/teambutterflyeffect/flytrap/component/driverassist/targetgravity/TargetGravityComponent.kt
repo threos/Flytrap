@@ -47,7 +47,7 @@ class TargetGravityComponent(context: LifecycleContext) : LifecycleObject(contex
             1.0f
         } else -1.0f)
 
-        return GravityObject((entity.x_0 + entity.x_1) / 2, entity.distanceToReference, mass)
+        return GravityObject((entity.x_0 + entity.x_1), entity.distanceToReference, mass)
     }
 }
 
