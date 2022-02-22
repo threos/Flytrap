@@ -21,6 +21,7 @@ class VisionServer(
     context: LifecycleContext,
 ) : MultimethodServer(context, port = port, gracePeriodMillis = 1000, destroyTimeout = 50000, teamNumber = "8034") {
 
+    var i: Long = 0
     override val TAG = "VisionServer"
 
     private val reader: ObjectReader = mapper.readerFor(object : TypeReference<List<VisionEntity>>() {})
@@ -30,11 +31,20 @@ class VisionServer(
             val text = call.receiveText()
             val entities = reader.readValue<List<VisionEntity>>(text)
 
-            log(TAG, "Receive new vision packet: $text", level = LogLevel.VERBOSE)
+            log(TAG, "Receive vision packet ${this@VisionServer.i}: $text", level = LogLevel.VERBOSE)
             this@VisionServer.context.post(
                 VisionDataMessage(
-                    entities.map {
-                                 VisionEntity(it.id, it.probability, it.x_0 / 300, it.y_0 / 200, it.x_1 / 300, it.y_1 / 200)
+                    entities.mapNotNull {
+                                 if(it.probability >= 0.85) {
+                                     VisionEntity(
+                                         it.id,
+                                         it.probability,
+                                         it.x_0 / 300,
+                                         it.y_0 / 200,
+                                         it.x_1 / 300,
+                                         it.y_1 / 200
+                                     )
+                                 } else null
                     },
                     Intents.create(context, null)
                 )

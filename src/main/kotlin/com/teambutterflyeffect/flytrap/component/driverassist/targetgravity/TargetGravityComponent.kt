@@ -3,6 +3,7 @@ package com.teambutterflyeffect.flytrap.component.driverassist.targetgravity
 import com.teambutterflyeffect.flytrap.component.driverassist.Alliance
 import com.teambutterflyeffect.flytrap.component.driverassist.AssistConfig
 import com.teambutterflyeffect.flytrap.component.driverassist.targetgravity.message.GravityForceMessage
+import com.teambutterflyeffect.flytrap.component.flylogger.log
 import com.teambutterflyeffect.flytrap.component.fvm2.protocol.MapDataMessage
 import com.teambutterflyeffect.flytrap.component.fvm2.protocol.VisionMapEntity
 import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleContext
@@ -11,6 +12,7 @@ import com.teambutterflyeffect.flytrap.system.lifecycle.ObjectContext
 import com.teambutterflyeffect.flytrap.system.lifecycle.data.ObjectMessage
 import com.teambutterflyeffect.flytrap.system.lifecycle.objects.Intents
 class TargetGravityComponent(context: LifecycleContext) : LifecycleObject(context) {
+    val TAG = "TargetGravityComponent"
     override fun onTick(context: ObjectContext<*>) {}
 
     override fun subscriptions(): Array<Class<out ObjectMessage>> = arrayOf(MapDataMessage::class.java)
@@ -31,6 +33,8 @@ class TargetGravityComponent(context: LifecycleContext) : LifecycleObject(contex
                     timeoutInMillis = 200
                 )
             )
+        } else {
+            log(TAG, "Invalid message!")
         }
     }
 

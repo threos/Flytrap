@@ -17,7 +17,7 @@ open class ObjectMessage (
     } ?: true
 }
 
-open class DataMessage<V: Any> (
+open class DataMessage<V: Any?> (
     intent: Intent,
     val content: V,
     timeoutInMillis: Long? = null,

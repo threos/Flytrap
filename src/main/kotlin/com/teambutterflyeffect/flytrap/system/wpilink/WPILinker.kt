@@ -2,11 +2,14 @@ package com.teambutterflyeffect.flytrap.system.wpilink
 
 import com.teambutterflyeffect.flytrap.base.FlytrapRobot
 import com.teambutterflyeffect.flytrap.component.flylogger.log
+import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleContext
 import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleObject
 import com.teambutterflyeffect.flytrap.system.lifecycle.objects.ObjectReference
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.TimedRobot
+import kotlinx.coroutines.flow.merge
 import java.util.*
+import java.util.concurrent.locks.ReentrantLock
 
 object WPILinker {
     fun launchWPIRobot(robot: FlytrapRobot) {
@@ -19,7 +22,8 @@ object WPILinker {
 class WPILinkRobot(private val flytrapRobot: FlytrapRobot) : TimedRobot(0.02) {
     val TAG = "WPILinkRobot"
     val components = IdentityHashMap<FlytrapRobot.RobotMode, ObjectReference<out LifecycleObject>>()
-
+    var messageDispatcherCalled = 0
+    var messageDispatcherDone = 0
     override fun disabledInit() {
         super.disabledInit()
         FlytrapRobot.RobotMode.values().forEach {
@@ -27,7 +31,24 @@ class WPILinkRobot(private val flytrapRobot: FlytrapRobot) : TimedRobot(0.02) {
         }
     }
 
-    override fun robotInit() = emit(FlytrapRobot.RobotMode.ROBOT, FlytrapRobot.RobotEvent.INIT)
+    override fun robotInit() {
+        emit(FlytrapRobot.RobotMode.ROBOT, FlytrapRobot.RobotEvent.INIT)
+        addPeriodic({
+            val index = messageDispatcherCalled + 1
+            messageDispatcherCalled = index
+            synchronized(LifecycleContext.messageLock) {
+                if(messageDispatcherDone > index) return@addPeriodic
+                val clone = LifecycleContext.messageQueue.toMutableSet()
+                clone.forEach {
+                    LifecycleContext.dispatch(it)
+                }
+                LifecycleContext.messageQueue.removeAll(clone)
+            }
+            messageDispatcherDone = messageDispatcherCalled
+
+        }, 0.02)
+    }
+
     override fun robotPeriodic() {
         super.robotPeriodic()
         flytrapRobot.context.periodTick()

@@ -1,5 +1,6 @@
 package com.teambutterflyeffect.flytrap.robot.component
 
+import com.teambutterflyeffect.flytrap.component.baller.light.BallerLightComponent
 import com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive.RobotDriveComponent
 import com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive.RobotDriveData
 import com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive.RobotDriveMessage
@@ -18,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.lang.Math.pow
 import java.time.Duration
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -43,13 +45,23 @@ class AutonomousComponent(context: LifecycleContext) : LifecycleObject(context) 
             this@AutonomousComponent.context.post(
                 RobotDriveMessage(
                     Intents.create(context, RobotDriveComponent::class.java),
-                    RobotDriveData(
-                        (min(message.content.force * 0.9f, 0.9f).toDouble().pow(2.0) * 0.8),
-                        min(message.content.x, 1f) * -0.45
-                    )
+                    unit(message.content.force).let {
+                        RobotDriveData(
+                            max(it * 0.45, 0.0),
+                            unit(message.content.x) * 0.2 + min(message.content.x, 1f) * 0.3 * it
+                        )
+                    }
                 )
             )
         }
+    }
+
+    fun unit(number: Float): Float {
+        return if(number < 0.0) {
+            -1.0f
+        } else if(number > 0.0) {
+            1.0f
+        } else 0.0f
     }
 
     override fun subscriptions(): Array<Class<out ObjectMessage>> = arrayOf(GravityForceMessage::class.java)

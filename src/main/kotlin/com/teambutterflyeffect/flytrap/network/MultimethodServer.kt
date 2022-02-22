@@ -16,7 +16,7 @@ abstract class MultimethodServer(
     context: LifecycleContext,
     private val teamNumber: String,
     private val deviceNumber: Int = 12,
-    private val hostOverride: String = "10.${teamNumber[0]}${teamNumber[1]}.${teamNumber[2]}${teamNumber[3]}.$deviceNumber",
+    private val hostOverride: String = "0.0.0.0",
     private val port: Int,
     private val gracePeriodMillis: Long = 5000,
     private val destroyTimeout: Long = 15000
@@ -32,6 +32,7 @@ abstract class MultimethodServer(
 
         engine = embeddedServer(
             Netty,
+            host = hostOverride,
             port = port,
         ) {
             log(TAG, "Configure embedded server on host: $hostOverride:$port")

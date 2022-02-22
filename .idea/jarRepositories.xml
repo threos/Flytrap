@@ -46,5 +46,10 @@
       <option name="name" value="WPIab676553-b602-441f-a38d-f1296eff6537_0Release" />
       <option name="url" value="https://maven.ctr-electronics.com/release/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="WPI3f48eb8c-50fe-43a6-9cb7-44c86353c4cb_0Release" />
+      <option name="name" value="WPI3f48eb8c-50fe-43a6-9cb7-44c86353c4cb_0Release" />
+      <option name="url" value="https://maven.revrobotics.com/" />
+    </remote-repository>
   </component>
 </project>

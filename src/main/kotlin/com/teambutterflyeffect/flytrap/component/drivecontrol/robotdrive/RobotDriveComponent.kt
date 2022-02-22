@@ -49,7 +49,9 @@ class RobotDriveComponent(context: LifecycleContext) : LifecycleObject(context) 
     override fun onTick(context: ObjectContext<*>) {
         if(dataExpiration > System.currentTimeMillis()) {
             drive.arcadeDrive(data.speed, data.rotation)
-        }
+        } /*else {
+            log(TAG, "Ignore expired data!")
+        }*/
     }
 
     @Synchronized fun use(): Boolean {
@@ -57,7 +59,7 @@ class RobotDriveComponent(context: LifecycleContext) : LifecycleObject(context) 
     }
 
     override fun onMessage(context: ObjectContext<*>, message: ObjectMessage) {
-        log(TAG, "Message: $message", LogLevel.VERBOSE)
+        //log(TAG, "Message: $message", LogLevel.VERBOSE)
         super.onMessage(context, message)
         if(message is RobotDriveMessage && message.isValid()) {
             data = message.content

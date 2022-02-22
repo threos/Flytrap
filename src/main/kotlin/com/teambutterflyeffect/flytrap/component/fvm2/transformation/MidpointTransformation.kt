@@ -4,6 +4,8 @@ import kotlin.math.PI
 import kotlin.math.sin
 
 /**
+ * Transform midpoint value to distance. This method is currently inaccurate as the area of view
+ * will increase with distance and transformation discards that.
  * @param fov camera field of view in degrees
  * @param nAngle negative angle (counterclockwise) between bottom ray of camera and y axis
  */

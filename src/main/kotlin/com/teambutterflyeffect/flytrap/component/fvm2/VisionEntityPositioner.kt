@@ -1,5 +1,6 @@
 package com.teambutterflyeffect.flytrap.component.fvm2
 
+import com.teambutterflyeffect.flytrap.component.flylogger.log
 import com.teambutterflyeffect.flytrap.component.fvm2.protocol.MapDataMessage
 import com.teambutterflyeffect.flytrap.component.fvm2.protocol.VisionDataMessage
 import com.teambutterflyeffect.flytrap.component.fvm2.protocol.VisionMapEntity

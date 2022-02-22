@@ -20,7 +20,10 @@ class TickerProvider {
         var tickId = -1
 
         while (!Thread.interrupted()) {
-            if(tickId == this@TickerProvider.tickId) continue
+            if(tickId == this@TickerProvider.tickId) {
+                //log(tag, "Abort tick")
+                continue
+            }
 
             objects.parallelStream().forEach {
                 it.tick()

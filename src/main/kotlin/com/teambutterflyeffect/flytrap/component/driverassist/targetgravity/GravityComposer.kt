@@ -1,18 +1,25 @@
 package com.teambutterflyeffect.flytrap.component.driverassist.targetgravity
 
+import kotlin.math.abs
 import kotlin.math.hypot
+import kotlin.math.max
 
 object GravityComposer {
+    private val nullForce = GravityForce(0f,0f,0f)
     fun compose(
         points: List<GravityObject>,
         observer: Point = Point(1f, 0f),
     ): GravityForce {
         return points.map {
             observer.relativePositionOf(it)
-        }.reduce { p, p1 ->
-            p.sum(p1)
-        }.let {
-            GravityForce(it.x, it.y, it.mass)
+        }.let { gravityObjects ->
+            if(gravityObjects.isNotEmpty()) {
+                gravityObjects.reduce { p, p1 ->
+                    p.sum(p1)
+                }.let {
+                    GravityForce(it.x, it.y, it.mass)
+                }
+            } else nullForce
         }
     }
 }
@@ -36,7 +43,7 @@ open class GravityObject(
     val mass: Float,
 ): Point(x, y) {
 
-    fun force(): Float = (mass / distance())
+    fun force(): Float = (mass / abs(distance()))
 
     private fun squareF(a: Float): Float = a * a
 
@@ -44,13 +51,25 @@ open class GravityObject(
         val force = force()
         val otherForce = other.force()
 
-        val x = (1.0f - x) * force
-        val y = (1.0f - y) * force
+        val x = (1.0f - x) * unit(force)
+        val y = max((1.0f - y), 0f)
 
-        val otherX = (1.0f - other.x) * otherForce
-        val otherY = (1.0f - other.y) * otherForce
+        val otherX = (1.0f - other.x) * unit(otherForce)
+        val otherY = max((1.0f - other.y), 0f)
 
-        return GravityObject(x + otherX, y + otherY, 1f)
+        return GravityObject(x + otherX, y + otherY, max(force, 0.0f) + max(otherForce, 0.0f))
+    }
+
+    fun unit(value: Float): Float {
+        return if(value < 0) (
+            -1.0f
+        ) else if(value > 0) {
+            1.0f
+        } else 0.0f
+    }
+
+    fun map(min: Float, max: Float, xMin: Float, xMax: Float, x: Float) {
+
     }
 }
 
