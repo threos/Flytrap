@@ -5,6 +5,7 @@ import com.teambutterflyeffect.flytrap.component.flylogger.log
 import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleContext
 import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleObject
 import com.teambutterflyeffect.flytrap.system.lifecycle.objects.ObjectReference
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.TimedRobot
 import kotlinx.coroutines.flow.merge

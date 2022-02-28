@@ -1,5 +1,6 @@
 package com.teambutterflyeffect.flytrap.component.fvm2.transformation
 
+import com.teambutterflyeffect.flytrap.component.flylogger.log
 import kotlin.math.PI
 import kotlin.math.sin
 
@@ -14,7 +15,9 @@ class MidpointTransformation (private val fov: Float, private val nAngle: Float)
     private val sinB: Float = sin(toRadians((180 - fov) / 2)).toFloat()
 
     fun transformHorizontalDistance(midPointToBottom: Float): Float {
-        return (midPointToBottom * sinB) / sinA
+        val x = (midPointToBottom * sinB) / sinA
+        log("MIDPOINT", x.toString())
+        return x
     }
 }
 

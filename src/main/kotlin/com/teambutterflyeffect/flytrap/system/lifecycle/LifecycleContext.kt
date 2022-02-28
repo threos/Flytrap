@@ -23,7 +23,7 @@ object LifecycleContext {
         return objects.values
     }
 
-    fun <T : ObjectMessage> post(message: T) {
+    fun <T : ObjectMessage> post(message: T) = runBlocking {
         synchronized(messageLock) {
             messageQueue.add(message)
         }

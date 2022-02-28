@@ -4,5 +4,5 @@ import com.teambutterflyeffect.flytrap.component.driverassist.targetgravity.Grav
 import com.teambutterflyeffect.flytrap.system.lifecycle.data.DataMessage
 import com.teambutterflyeffect.flytrap.system.lifecycle.objects.Intent
 
-class GravityForceMessage(intent: Intent, content: GravityForce, timeoutInMillis: Long = 200) :
+class GravityForceMessage(intent: Intent, content: GravityForce, timeoutInMillis: Long = 20) :
     DataMessage<GravityForce>(intent, content, timeoutInMillis)

@@ -1,16 +1,19 @@
 package com.teambutterflyeffect.flytrap.component.driverassist.targetgravity
 
+import com.teambutterflyeffect.flytrap.component.flylogger.log
 import kotlin.math.abs
 import kotlin.math.hypot
 import kotlin.math.max
 
 object GravityComposer {
+    val tag = "GravityComposer"
     private val nullForce = GravityForce(0f,0f,0f)
     fun compose(
         points: List<GravityObject>,
         observer: Point = Point(1f, 0f),
     ): GravityForce {
         return points.map {
+            log(tag, "Point: ${it.x} , ${it.y} , ${it.mass}")
             observer.relativePositionOf(it)
         }.let { gravityObjects ->
             if(gravityObjects.isNotEmpty()) {
@@ -33,7 +36,7 @@ open class Point(
     open fun relativePositionOf(point: GravityObject): GravityObject = GravityObject(point.x - x, point.y - y, point.mass)
 
     fun distance(): Float {
-        return hypot(x, y)
+        return y
     }
 }
 

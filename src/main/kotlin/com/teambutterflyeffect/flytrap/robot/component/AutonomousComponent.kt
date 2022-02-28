@@ -1,12 +1,22 @@
 package com.teambutterflyeffect.flytrap.robot.component
 
+import com.ctre.phoenix.motorcontrol.VictorSPXControlMode
+import com.ctre.phoenix.motorcontrol.can.VictorSPX
 import com.teambutterflyeffect.flytrap.component.baller.light.BallerLightComponent
+import com.teambutterflyeffect.flytrap.component.baller.light.OperationLightComponent
+import com.teambutterflyeffect.flytrap.component.baller.shooter.ShooterComponent
+import com.teambutterflyeffect.flytrap.component.baller.shooter.ShooterMessage
 import com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive.RobotDriveComponent
 import com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive.RobotDriveData
 import com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive.RobotDriveMessage
 import com.teambutterflyeffect.flytrap.component.driverassist.targetgravity.message.GravityForceMessage
 import com.teambutterflyeffect.flytrap.component.flylogger.LogLevel
 import com.teambutterflyeffect.flytrap.component.flylogger.log
+import com.teambutterflyeffect.flytrap.component.intake.IntakeComponent
+import com.teambutterflyeffect.flytrap.component.intake.IntakeDirection
+import com.teambutterflyeffect.flytrap.component.intake.IntakeMessage
+import com.teambutterflyeffect.flytrap.component.tower.component.TowerMotorComponent
+import com.teambutterflyeffect.flytrap.component.tower.message.TowerMotorMessage
 import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleContext
 import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleObject
 import com.teambutterflyeffect.flytrap.system.lifecycle.ObjectContext
@@ -34,7 +44,6 @@ class AutonomousComponent(context: LifecycleContext) : LifecycleObject(context) 
     override fun onCreate(context: ObjectContext<*>) {
         super.onCreate(context)
         log(TAG, "onCreate", LogLevel.VERBOSE)
-        //test(context)
     }
 
     override fun onMessage(context: ObjectContext<*>, message: ObjectMessage) {
@@ -47,12 +56,31 @@ class AutonomousComponent(context: LifecycleContext) : LifecycleObject(context) 
                     Intents.create(context, RobotDriveComponent::class.java),
                     unit(message.content.force).let {
                         RobotDriveData(
-                            max(it * 0.45, 0.0),
-                            unit(message.content.x) * 0.2 + min(message.content.x, 1f) * 0.3 * it
+                            max(it * 0.55 * (1.0 - (abs(message.content.x) /  3.5)), 0.0),
+                            unit(message.content.x) * -0.15 + min(max(message.content.x, -1f) , 1f) * -0.3 * it,
                         )
-                    }
+                    },
+                    timeoutInMillis = 100
                 )
             )
+            if(message.content.force != 0f) {
+                (if(message.content.force >= 0f) { IntakeDirection.IN } else IntakeDirection.OUT).let {
+                    this@AutonomousComponent.context.post(
+                        IntakeMessage(
+                            Intents.create(context, IntakeComponent::class.java),
+                            it
+                        )
+                    )
+                    if(it == IntakeDirection.IN) {
+                        this@AutonomousComponent.context.post(
+                            TowerMotorMessage(
+                                Intents.create(context, TowerMotorComponent::class.java),
+                                it
+                            )
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -66,7 +94,9 @@ class AutonomousComponent(context: LifecycleContext) : LifecycleObject(context) 
 
     override fun subscriptions(): Array<Class<out ObjectMessage>> = arrayOf(GravityForceMessage::class.java)
 
-    override fun components(): Array<ObjectReference<out LifecycleObject>> = arrayOf()
+    override fun components(): Array<ObjectReference<out LifecycleObject>> = arrayOf(
+        ObjectReference(OperationLightComponent::class.java)
+    )
 
     fun test(context: ObjectContext<*>) = runBlocking {
         log(TAG, "runBlocking", LogLevel.VERBOSE)

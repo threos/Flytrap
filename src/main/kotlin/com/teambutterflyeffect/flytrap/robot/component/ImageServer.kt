@@ -29,7 +29,7 @@ class ImageServer(
                     val bytes = call.receiveStream().readAllBytes()
                     imageData = ByteArrayInputStream(bytes)
                     onUpdate?.invoke()
-                    if(i % 20 == 0) File("/Users/erayeminocak/IdeaProjects/Flytrap/timg2/img-${UUID.randomUUID()}.jpg").writeBytes(bytes)
+                    if(i % 20 == 0) File("/Users/erayeminocak/IdeaProjects/Flytrap/timg3/img-${UUID.randomUUID()}.jpg").writeBytes(bytes)
                     i++
                 }
             } catch (e: Throwable) {

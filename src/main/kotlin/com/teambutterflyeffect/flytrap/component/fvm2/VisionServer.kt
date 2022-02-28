@@ -2,8 +2,11 @@ package com.teambutterflyeffect.flytrap.component.fvm2
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectReader
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.teambutterflyeffect.flytrap.component.flylogger.LogLevel
 import com.teambutterflyeffect.flytrap.component.flylogger.log
+import com.teambutterflyeffect.flytrap.component.fvm2.protocol.HubDataMessage
+import com.teambutterflyeffect.flytrap.component.fvm2.protocol.HubEntity
 import com.teambutterflyeffect.flytrap.component.fvm2.protocol.VisionDataMessage
 import com.teambutterflyeffect.flytrap.component.fvm2.protocol.VisionEntity
 import com.teambutterflyeffect.flytrap.network.MultimethodServer
@@ -21,34 +24,57 @@ class VisionServer(
     context: LifecycleContext,
 ) : MultimethodServer(context, port = port, gracePeriodMillis = 1000, destroyTimeout = 50000, teamNumber = "8034") {
 
-    var i: Long = 0
+    var i1: Int = 0
+    var i2: Int = 0
     override val TAG = "VisionServer"
 
     private val reader: ObjectReader = mapper.readerFor(object : TypeReference<List<VisionEntity>>() {})
+    private val hubReader: ObjectReader = mapper.readerFor(object : TypeReference<HubEntity>() {})
+
 
     override fun routing(context: ObjectContext<*>, routing: Routing): Unit = routing.run {
         post {
             val text = call.receiveText()
             val entities = reader.readValue<List<VisionEntity>>(text)
 
-            log(TAG, "Receive vision packet ${this@VisionServer.i}: $text", level = LogLevel.VERBOSE)
             this@VisionServer.context.post(
                 VisionDataMessage(
                     entities.mapNotNull {
-                                 if(it.probability >= 0.85) {
+                                 if(it.probability >= 0.7) {
                                      VisionEntity(
                                          it.id,
                                          it.probability,
-                                         it.x_0 / 300,
-                                         it.y_0 / 200,
-                                         it.x_1 / 300,
-                                         it.y_1 / 200
+                                         it.x_0 / 576,
+                                         it.y_0 / 176,
+                                         it.x_1 / 576,
+                                         it.y_1 / 176
                                      )
                                  } else null
                     },
-                    Intents.create(context, null)
+                    Intents.create(context, null),
                 )
             )
+            if(i1 % 50 == 0) log(TAG, "Receive vision packet ${this@VisionServer.i1}: $text", level = LogLevel.VERBOSE)
+            i1++
+        }
+        post("/hub") {
+            val text = call.receiveText()
+
+            //if(i2 % 50 == 0) log(TAG, "Receive hub packet ${this@VisionServer.i2}: $text")
+
+            val entity = hubReader.readValue<HubEntity>(text)
+
+            entity.takeIf {
+                entity.tArea > 10000
+            }?.let {
+                this@VisionServer.context.post(
+                    HubDataMessage(
+                        Intents.create(context, null),
+                        it
+                    )
+                )
+            }
+            i2++
         }
     }
 }

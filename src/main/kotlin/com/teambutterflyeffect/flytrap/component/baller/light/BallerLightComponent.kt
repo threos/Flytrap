@@ -13,11 +13,11 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer
 class BallerLightComponent(context: LifecycleContext) : LifecycleObject(context) {
     val tag = "BallerLightComponent"
     val led = AddressableLED(0)
-    val buf = AddressableLEDBuffer(28)
+    val buf = AddressableLEDBuffer(52)
     @Volatile
     var step = 0
 
-    private val defaultFadeAnimation = FadeAnimation(0, 180, 0)
+    private val defaultFadeAnimation = FadeAnimation(0, 255, 0)
 
     var message: BallerLightMessage? = null
 

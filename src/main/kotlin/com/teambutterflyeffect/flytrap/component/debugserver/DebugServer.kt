@@ -14,7 +14,7 @@ import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
 
-const val port = 9319
+const val port = 5807
 
 class DebugServer(context: LifecycleContext) :
     MultimethodServer(context, port = port, teamNumber = "8034") {
@@ -31,6 +31,7 @@ class DebugServer(context: LifecycleContext) :
                     reason = try {
                         "Kill switch triggered via DebugServer by: ${call.request.origin.host} over port: $port"
                     } catch (e: Throwable) {
+                        e.printStackTrace()
                         "Kill switch triggered via DebugServer over port: $port"
                     }
                 )
@@ -38,6 +39,25 @@ class DebugServer(context: LifecycleContext) :
             call.respondText(status = HttpStatusCode.OK, text = "OK")
         }
         get("/info") {
+            call.respondText(status = HttpStatusCode.OK, text = "OK")
+        }
+        post("/configuration") {
+            log(TAG, "Set configuration", level = LogLevel.INFO)
+            call.respondText(status = HttpStatusCode.OK, text = "OK")
+        }
+        get("/configuration") {
+            log(TAG, "Get configuration", level = LogLevel.INFO)
+            this@DebugServer.context.post(
+                KillSwitchMessage(
+                    Intents.create(context, null),
+                    ErrorCode.REMOTE,
+                    reason = try {
+                        "Kill switch triggered via DebugServer by: ${call.request.origin.host} over port: $port"
+                    } catch (e: Throwable) {
+                        "Kill switch triggered via DebugServer over port: $port"
+                    }
+                )
+            )
             call.respondText(status = HttpStatusCode.OK, text = "OK")
         }
     }

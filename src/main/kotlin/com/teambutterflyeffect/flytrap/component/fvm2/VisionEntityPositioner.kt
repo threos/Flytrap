@@ -26,7 +26,7 @@ class VisionEntityPositioner(context: LifecycleContext) : LifecycleObject(contex
             this.context.post(
                 MapDataMessage(
                     message.entities.map {
-                        VisionMapEntity(it, transformation.transformHorizontalDistance((it.y_0 + it.y_1)) / 2)
+                        VisionMapEntity(it, (it.y_0 + it.y_1) / 2)
                     },
                     Intents.create(context, null),
                 ),

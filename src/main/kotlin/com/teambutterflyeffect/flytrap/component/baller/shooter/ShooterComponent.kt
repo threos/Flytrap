@@ -20,7 +20,7 @@ class ShooterComponent(context: LifecycleContext) : LifecycleObject(context) {
          field = value
          value?.content?.let {
              if(speed == 0.0) {
-                 warningEnd = System.currentTimeMillis() + 1800
+                 warningEnd = System.currentTimeMillis() + 600
                  warmupStage1End = warningEnd + warmupDuration
                  warmupEnd = warmupStage1End + 2000
              }
@@ -31,7 +31,7 @@ class ShooterComponent(context: LifecycleContext) : LifecycleObject(context) {
     var warmupEnd: Long = 0
     var warmupStage1End: Long = 0
     var warningEnd: Long = 0
-    var warmupDuration = 2000
+    var warmupDuration = 1000
     private val motorLeft = CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless)
     private val motorRight = CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless)
 

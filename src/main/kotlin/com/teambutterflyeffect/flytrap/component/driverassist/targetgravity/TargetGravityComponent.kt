@@ -3,6 +3,7 @@ package com.teambutterflyeffect.flytrap.component.driverassist.targetgravity
 import com.teambutterflyeffect.flytrap.component.driverassist.Alliance
 import com.teambutterflyeffect.flytrap.component.driverassist.AssistConfig
 import com.teambutterflyeffect.flytrap.component.driverassist.targetgravity.message.GravityForceMessage
+import com.teambutterflyeffect.flytrap.component.flylogger.LogLevel
 import com.teambutterflyeffect.flytrap.component.flylogger.log
 import com.teambutterflyeffect.flytrap.component.fvm2.protocol.MapDataMessage
 import com.teambutterflyeffect.flytrap.component.fvm2.protocol.VisionMapEntity
@@ -25,6 +26,8 @@ class TargetGravityComponent(context: LifecycleContext) : LifecycleObject(contex
                     gravityObjectFromMapEntity(it)
                 }
             )
+            log(TAG, "Force: ${gravityForce.force}", LogLevel.VERBOSE)
+
 
             this@TargetGravityComponent.context.post(
                 GravityForceMessage(
