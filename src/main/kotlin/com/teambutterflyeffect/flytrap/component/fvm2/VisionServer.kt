@@ -34,47 +34,57 @@ class VisionServer(
 
     override fun routing(context: ObjectContext<*>, routing: Routing): Unit = routing.run {
         post {
-            val text = call.receiveText()
-            val entities = reader.readValue<List<VisionEntity>>(text)
+            try {
+                val text = call.receiveText()
+                val entities = reader.readValue<List<VisionEntity>>(text)
 
-            this@VisionServer.context.post(
-                VisionDataMessage(
-                    entities.mapNotNull {
-                                 if(it.probability >= 0.7) {
-                                     VisionEntity(
-                                         it.id,
-                                         it.probability,
-                                         it.x_0 / 576,
-                                         it.y_0 / 176,
-                                         it.x_1 / 576,
-                                         it.y_1 / 176
-                                     )
-                                 } else null
-                    },
-                    Intents.create(context, null),
+                if (i1 % 50 == 0) log(
+                    TAG,
+                    "Receive vision packet ${this@VisionServer.i1}: $text",
+                    level = LogLevel.VERBOSE
                 )
-            )
-            if(i1 % 50 == 0) log(TAG, "Receive vision packet ${this@VisionServer.i1}: $text", level = LogLevel.VERBOSE)
-            i1++
+
+                this@VisionServer.context.post(
+                    VisionDataMessage(
+                        entities.mapNotNull {
+                            if (it.probability >= 0.7) {
+                                VisionEntity(
+                                    it.id,
+                                    it.probability,
+                                    it.x_0 / 576,
+                                    it.y_0 / 176,
+                                    it.x_1 / 576,
+                                    it.y_1 / 176
+                                )
+                            } else null
+                        },
+                        Intents.create(context, null),
+                    )
+                )
+                i1++
+            } catch (t: Throwable) {
+                t.printStackTrace()
+            }
         }
         post("/hub") {
-            val text = call.receiveText()
+            try {
+                val text = call.receiveText()
 
-            //if(i2 % 50 == 0) log(TAG, "Receive hub packet ${this@VisionServer.i2}: $text")
+                if (i2 % 50 == 0) log(TAG, "Receive hub packet ${this@VisionServer.i2}: $text")
 
-            val entity = hubReader.readValue<HubEntity>(text)
+                val entity = hubReader.readValue<HubEntity>(text)
 
-            entity.takeIf {
-                entity.tArea > 10000
-            }?.let {
+                //log(TAG, "Post hub message")
                 this@VisionServer.context.post(
                     HubDataMessage(
                         Intents.create(context, null),
-                        it
+                        entity
                     )
                 )
+                i2++
+            } catch (t: Throwable) {
+                t.printStackTrace()
             }
-            i2++
         }
     }
 }

@@ -8,13 +8,13 @@ import com.teambutterflyeffect.flytrap.component.baller.light.OperationLightComp
 import com.teambutterflyeffect.flytrap.component.baller.light.animation.ConstantAnimation
 import com.teambutterflyeffect.flytrap.component.baller.shooter.ShooterComponent
 import com.teambutterflyeffect.flytrap.component.baller.shooter.ShooterMessage
+import com.teambutterflyeffect.flytrap.component.debugserver.ROBOT_CONFIGURATION
 import com.teambutterflyeffect.flytrap.component.drivecontrol.hanger.HangerComponent
 import com.teambutterflyeffect.flytrap.component.drivecontrol.hanger.HangerMessage
 import com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive.*
 import com.teambutterflyeffect.flytrap.component.driverassist.targetgravity.message.GravityForceMessage
 import com.teambutterflyeffect.flytrap.component.flylogger.LogLevel
 import com.teambutterflyeffect.flytrap.component.flylogger.log
-import com.teambutterflyeffect.flytrap.component.fvm2.protocol.HubDataMessage
 import com.teambutterflyeffect.flytrap.component.intake.IntakeComponent
 import com.teambutterflyeffect.flytrap.component.intake.IntakeDirection
 import com.teambutterflyeffect.flytrap.component.intake.IntakeMessage
@@ -39,7 +39,7 @@ class TeleopComponent(context: LifecycleContext) : LifecycleObject(context) {
     var lastXPressed: Long = 0
     var lastYPressed: Long = 0
     var lastBPressed: Long = 0
-    var alignModeEnd: Long = 0
+    var lastAPressed: Long = 0
 
     val TAG = "TeleopComponent"
 
@@ -79,6 +79,86 @@ class TeleopComponent(context: LifecycleContext) : LifecycleObject(context) {
                 ),
             )
         )
+
+        this@TeleopComponent.context.post(
+            HangerMessage(
+                Intents.create(context, HangerComponent::class.java),
+                controller.rightY.let {
+                    if(abs(it) < 0.3) {
+                        0.0
+                    } else it
+                }
+            )
+        )
+
+        if(controller.xButton && lastXPressed < System.currentTimeMillis() - 200) {
+            this@TeleopComponent.context.post(
+                DriveModifierMessage(
+                    Intents.create(context, RobotDriveComponent::class.java),
+                    ReverseModifier(),
+                    timeoutInMillis = null,
+                )
+            )
+            lastXPressed = System.currentTimeMillis()
+        }
+
+        if(controller.pov != -1) {
+            this@TeleopComponent.context.post(
+                DriveModifierMessage(
+                    Intents.create(context, RobotDriveComponent::class.java),
+                    DefaultModifier(),
+                    timeoutInMillis = 200,
+                )
+            )
+        }
+
+        if(controller.bButton && lastBPressed < System.currentTimeMillis() - 200) {
+            this@TeleopComponent.context.post(
+                DriveModifierMessage(
+                    Intents.create(context, RobotDriveComponent::class.java),
+                    PrecisionModifier(),
+                    timeoutInMillis = 200,
+                )
+            )
+            lastBPressed = System.currentTimeMillis()
+        }
+
+        if(controller.aButton && lastAPressed < System.currentTimeMillis() - 200) {
+            this@TeleopComponent.context.post(
+                DriveModifierMessage(
+                    Intents.create(context, RobotDriveComponent::class.java),
+                    TurboModifier(),
+                    timeoutInMillis = 10000,
+                )
+            )
+            lastAPressed = System.currentTimeMillis()
+        }
+
+
+        if(controller.rightBumper) {
+            this@TeleopComponent.context.post(
+                IntakeMessage(
+                    Intents.create(
+                        context,
+                        IntakeComponent::class.java
+                    ),
+                    IntakeDirection.IN,
+                    timeoutInMillis = 200
+                )
+            )
+
+            this@TeleopComponent.context.post(
+                TowerMotorMessage(
+                    Intents.create(
+                        context,
+                        TowerMotorComponent::class.java
+                    ),
+                    IntakeDirection.IN,
+                    timeoutInMillis = 200
+                )
+            )
+        }
+
         if (controller.rightTriggerAxis > 0.5) {
             this@TeleopComponent.context.post(
                 ShooterMessage(
@@ -86,10 +166,11 @@ class TeleopComponent(context: LifecycleContext) : LifecycleObject(context) {
                         context,
                         ShooterComponent::class.java
                     ),
-                    7500
+                    ROBOT_CONFIGURATION.BALLER_RPM
                 )
             )
         }
+
         if (controller.leftBumper) {
             this@TeleopComponent.context.post(
                 IntakeMessage(
@@ -116,94 +197,23 @@ class TeleopComponent(context: LifecycleContext) : LifecycleObject(context) {
 
         if(controller.leftTriggerAxis > 0.25) {
             this@TeleopComponent.context.post(
-                IntakeMessage(
-                    Intents.create(
-                        context,
-                        IntakeComponent::class.java
-                    ),
-                    IntakeDirection.IN,
-                    timeoutInMillis = 200
-                )
-            )
-
-            this@TeleopComponent.context.post(
-                TowerMotorMessage(
-                    Intents.create(
-                        context,
-                        TowerMotorComponent::class.java
-                    ),
-                    IntakeDirection.IN,
-                    timeoutInMillis = 200
-                )
-            )
-        }
-
-        this@TeleopComponent.context.post(
-            HangerMessage(
-                Intents.create(context, HangerComponent::class.java),
-                controller.rightY.let {
-                    if(abs(it) < 0.3) {
-                        0.0
-                    } else it
-                }
-            )
-        )
-
-        if(controller.rightBumper) {
-            this@TeleopComponent.context.post(
                 AlignerMessage(
                     Intents.create(context, BallerAlignerComponent::class.java),
-                    timeoutInMillis = 200,
                 )
             )
-        }
-
-        if(controller.xButton && lastXPressed < System.currentTimeMillis() - 200) {
-            this@TeleopComponent.context.post(
-                DriveModifierMessage(
-                    Intents.create(context, RobotDriveComponent::class.java),
-                    ReverseModifier(),
-                    timeoutInMillis = null,
-                )
-            )
-            lastXPressed = System.currentTimeMillis()
         }
 
         if(controller.yButton && lastYPressed < System.currentTimeMillis() - 200) {
             this@TeleopComponent.context.post(
-                DriveModifierMessage(
-                    Intents.create(context, RobotDriveComponent::class.java),
-                    TurboModifier(),
-                    timeoutInMillis = 10000,
+                ShooterMessage(
+                    Intents.create(
+                        context,
+                        ShooterComponent::class.java
+                    ),
+                    ROBOT_CONFIGURATION.BALLER_LOW_RPM
                 )
             )
             lastYPressed = System.currentTimeMillis()
-        }
-
-        if(controller.bButton && lastBPressed < System.currentTimeMillis() - 200) {
-            this@TeleopComponent.context.post(
-                DriveModifierMessage(
-                    Intents.create(context, RobotDriveComponent::class.java),
-                    PrecisionModifier(),
-                    timeoutInMillis = 200,
-                )
-            )
-            lastYPressed = System.currentTimeMillis()
-        }
-
-        if(controller.rightBumper) {
-            this@TeleopComponent.context.post(
-                AlignerMessage(
-                    Intents.create(context, BallerAlignerComponent::class.java),
-                )
-            )
-
-            this@TeleopComponent.context.post(
-                BallerLightMessage(
-                    Intents.create(context, BallerLightComponent::class.java),
-                    ConstantAnimation(0, 255, 0)
-                )
-            )
         }
 
     }
@@ -222,6 +232,18 @@ class TeleopComponent(context: LifecycleContext) : LifecycleObject(context) {
         //test(context)
     }
 
+    override fun onDestroy(context: ObjectContext<*>) {
+        super.onDestroy(context)
+        controller.setRumble(
+            GenericHID.RumbleType.kLeftRumble,
+            0.0
+        )
+        controller.setRumble(
+            GenericHID.RumbleType.kRightRumble,
+            0.0
+        )
+    }
+
     override fun onMessage(context: ObjectContext<*>, message: ObjectMessage) {
         super.onMessage(context, message)
         if (message is GravityForceMessage && message.isValid()) {
@@ -234,7 +256,6 @@ class TeleopComponent(context: LifecycleContext) : LifecycleObject(context) {
 
     override fun subscriptions(): Array<Class<out ObjectMessage>> = arrayOf(
         GravityForceMessage::class.java,
-        HubDataMessage::class.java,
     )
 
     override fun components(): Array<ObjectReference<out LifecycleObject>> = arrayOf(

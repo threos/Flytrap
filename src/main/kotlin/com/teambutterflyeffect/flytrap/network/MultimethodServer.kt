@@ -29,20 +29,24 @@ abstract class MultimethodServer(
 
     override fun onCreate(context: ObjectContext<*>) {
         super.onCreate(context)
-
-        engine = embeddedServer(
-            Netty,
-            host = hostOverride,
-            port = port,
-        ) {
-            log(TAG, "Configure embedded server on host: $hostOverride:$port")
-            configure(this)
-            routing {
-                log(TAG, "Set embedded server routing")
-                routing(context, this)
+        try {
+            engine = embeddedServer(
+                Netty,
+                host = hostOverride,
+                port = port,
+            ) {
+                log(TAG, "Configure embedded server on host: $hostOverride:$port")
+                configure(this)
+                routing {
+                    log(TAG, "Set embedded server routing")
+                    routing(context, this)
+                }
             }
+            engine.start(wait = false)
+        } catch(t: Throwable) {
+            log(TAG, "Internal server error!")
+            t.printStackTrace()
         }
-        engine.start(wait = false)
     }
 
     override fun onDestroy(context: ObjectContext<*>) {

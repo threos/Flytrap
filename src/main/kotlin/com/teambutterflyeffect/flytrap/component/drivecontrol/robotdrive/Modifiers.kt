@@ -16,6 +16,12 @@ class TurboModifier: ModifierBuilder {
 
 class PrecisionModifier: ModifierBuilder {
     override fun invoke(previous: Double, default: Double): Double {
-        return  -0.35
+        return -0.35
+    }
+}
+
+class DefaultModifier: ModifierBuilder {
+    override fun invoke(previous: Double, default: Double): Double {
+        return default
     }
 }

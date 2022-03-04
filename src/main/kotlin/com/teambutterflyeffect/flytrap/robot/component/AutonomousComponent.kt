@@ -1,20 +1,18 @@
 package com.teambutterflyeffect.flytrap.robot.component
 
-import com.ctre.phoenix.motorcontrol.VictorSPXControlMode
-import com.ctre.phoenix.motorcontrol.can.VictorSPX
-import com.teambutterflyeffect.flytrap.component.baller.light.BallerLightComponent
+import com.teambutterflyeffect.flytrap.component.autopilot.AutopilotComponent
+import com.teambutterflyeffect.flytrap.component.autopilot.AutopilotMessage
+import com.teambutterflyeffect.flytrap.component.baller.aligner.BallerAlignerComponent
+import com.teambutterflyeffect.flytrap.component.baller.finder.BallerFinderComponent
+import com.teambutterflyeffect.flytrap.component.baller.finder.BallerFinderResultMessage
 import com.teambutterflyeffect.flytrap.component.baller.light.OperationLightComponent
 import com.teambutterflyeffect.flytrap.component.baller.shooter.ShooterComponent
 import com.teambutterflyeffect.flytrap.component.baller.shooter.ShooterMessage
-import com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive.RobotDriveComponent
-import com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive.RobotDriveData
-import com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive.RobotDriveMessage
+import com.teambutterflyeffect.flytrap.component.debugserver.ROBOT_CONFIGURATION
 import com.teambutterflyeffect.flytrap.component.driverassist.targetgravity.message.GravityForceMessage
 import com.teambutterflyeffect.flytrap.component.flylogger.LogLevel
 import com.teambutterflyeffect.flytrap.component.flylogger.log
-import com.teambutterflyeffect.flytrap.component.intake.IntakeComponent
 import com.teambutterflyeffect.flytrap.component.intake.IntakeDirection
-import com.teambutterflyeffect.flytrap.component.intake.IntakeMessage
 import com.teambutterflyeffect.flytrap.component.tower.component.TowerMotorComponent
 import com.teambutterflyeffect.flytrap.component.tower.message.TowerMotorMessage
 import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleContext
@@ -23,119 +21,108 @@ import com.teambutterflyeffect.flytrap.system.lifecycle.ObjectContext
 import com.teambutterflyeffect.flytrap.system.lifecycle.data.ObjectMessage
 import com.teambutterflyeffect.flytrap.system.lifecycle.objects.Intents
 import com.teambutterflyeffect.flytrap.system.lifecycle.objects.ObjectReference
-import jdk.incubator.vector.VectorOperators.POW
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import java.lang.Math.pow
-import java.time.Duration
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.pow
 
 const val TAG = "AutonomousComponent"
 class AutonomousComponent(context: LifecycleContext) : LifecycleObject(context) {
-    var i = 0
+    var step = 0
+    set(value) {
+        field = value
+        when(value) {
+            1 -> {
+                context.detach(ballerFinderReference)
+                context.attach(alignerReference)
+            }
+        }
+    }
+
+    var begin = 0L
+
+    private val ballerFinderReference = ObjectReference(BallerFinderComponent::class.java)
+    private val alignerReference = ObjectReference(BallerAlignerComponent::class.java)
+
     override fun onTick(context: ObjectContext<*>) {
+        if(System.currentTimeMillis() - begin < 100) {
+            this@AutonomousComponent.context.post(
+                TowerMotorMessage(
+                    Intents.create(context, TowerMotorComponent::class.java),
+                    IntakeDirection.OUT,
+                    timeoutInMillis = 50,
+                    )
+            )
+        }
+
+        (System.currentTimeMillis() - begin).let {
+            if(it < 100) {
+                this@AutonomousComponent.context.post(
+                    TowerMotorMessage(
+                        Intents.create(context, TowerMotorComponent::class.java),
+                        IntakeDirection.OUT,
+                        timeoutInMillis = 50,
+                    )
+                )
+            }
+            if(it > 3000) {
+                this@AutonomousComponent.context.post(
+                    ShooterMessage(
+                        Intents.create(context, ShooterComponent::class.java),
+                        ROBOT_CONFIGURATION.BALLER_RPM,
+                        timeoutInMillis = 100
+                    )
+                )
+            }
+            if(it in 7001..8999) {
+                this@AutonomousComponent.context.post(
+                    TowerMotorMessage(
+                        Intents.create(context, TowerMotorComponent::class.java),
+                        IntakeDirection.IN,
+                        timeoutInMillis = 100
+                    )
+                )
+            }
+            if(it > 9000) {
+                this@AutonomousComponent.context.post(
+                    AutopilotMessage(
+                        Intents.create(context, AutopilotComponent::class.java),
+                        timeoutInMillis = 100
+                    )
+                )
+            }
+        }
+
 
     }
 
     override fun onCreate(context: ObjectContext<*>) {
         super.onCreate(context)
+        this@AutonomousComponent.context.attach(ballerFinderReference)
         log(TAG, "onCreate", LogLevel.VERBOSE)
+        begin = System.currentTimeMillis()
     }
 
     override fun onMessage(context: ObjectContext<*>, message: ObjectMessage) {
         super.onMessage(context, message)
         log(TAG, "Message", LogLevel.VERBOSE)
         if(message is GravityForceMessage && message.isValid()) {
-            log(TAG, "Valid gravity message!", LogLevel.VERBOSE)
-            this@AutonomousComponent.context.post(
-                RobotDriveMessage(
-                    Intents.create(context, RobotDriveComponent::class.java),
-                    unit(message.content.force).let {
-                        RobotDriveData(
-                            max(it * 0.55 * (1.0 - (abs(message.content.x) /  3.5)), 0.0),
-                            unit(message.content.x) * -0.15 + min(max(message.content.x, -1f) , 1f) * -0.3 * it,
-                        )
-                    },
-                    timeoutInMillis = 100
-                )
-            )
-            if(message.content.force != 0f) {
-                (if(message.content.force >= 0f) { IntakeDirection.IN } else IntakeDirection.OUT).let {
-                    this@AutonomousComponent.context.post(
-                        IntakeMessage(
-                            Intents.create(context, IntakeComponent::class.java),
-                            it
-                        )
-                    )
-                    if(it == IntakeDirection.IN) {
-                        this@AutonomousComponent.context.post(
-                            TowerMotorMessage(
-                                Intents.create(context, TowerMotorComponent::class.java),
-                                it
-                            )
-                        )
-                    }
-                }
-            }
+            //log(TAG, "Valid gravity message!", LogLevel.VERBOSE)
+        } else if(message is BallerFinderResultMessage && message.isValid()) {
+            step = 1
         }
     }
 
-    fun unit(number: Float): Float {
-        return if(number < 0.0) {
-            -1.0f
-        } else if(number > 0.0) {
-            1.0f
-        } else 0.0f
+    override fun onDestroy(context: ObjectContext<*>) {
+        super.onDestroy(context)
+        this@AutonomousComponent.context.detach(ballerFinderReference)
+        this@AutonomousComponent.context.detach(alignerReference)
     }
 
-    override fun subscriptions(): Array<Class<out ObjectMessage>> = arrayOf(GravityForceMessage::class.java)
-
-    override fun components(): Array<ObjectReference<out LifecycleObject>> = arrayOf(
-        ObjectReference(OperationLightComponent::class.java)
+    override fun subscriptions(): Array<Class<out ObjectMessage>> = arrayOf(
+        GravityForceMessage::class.java,
+        BallerFinderResultMessage::class.java,
     )
 
-    fun test(context: ObjectContext<*>) = runBlocking {
-        log(TAG, "runBlocking", LogLevel.VERBOSE)
-        launch {
-            log(TAG, "Launch coroutine scope", LogLevel.VERBOSE)
-            listOf(
-                RobotDriveData(
-                    0.5,
-                    0.0
-                ),
-                RobotDriveData(
-                    0.5,
-                    1.0
-                ),
-                RobotDriveData(
-                    0.5,
-                    -1.0
-                ),
-            ).forEach {
-                log(TAG, "Iterate RobotDriveData", LogLevel.VERBOSE)
-                this@AutonomousComponent.context.post(
-                    RobotDriveMessage(
-                        Intents.create(context, RobotDriveComponent::class.java),
-                        it
-                    )
-                )
-                delay(20000)
+    override fun components(): Array<ObjectReference<out LifecycleObject>> = arrayOf(
+        ObjectReference(AutopilotComponent::class.java)
+        //ObjectReference(OperationLightComponent::class.java)
+    )
 
-                this@AutonomousComponent.context.post(
-                    RobotDriveMessage(
-                        Intents.create(context, RobotDriveComponent::class.java),
-                        RobotDriveData(
-                            0.0,
-                            0.0
-                        ),
-                    )
-                )
-                delay(1000)
-            }
-        }
-    }
 }

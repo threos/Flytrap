@@ -3,6 +3,7 @@ package com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX
 import com.teambutterflyeffect.flytrap.component.flylogger.LogLevel
 import com.teambutterflyeffect.flytrap.component.flylogger.log
+import com.teambutterflyeffect.flytrap.component.flylogger.storage.LogStorage.data
 import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleContext
 import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleObject
 import com.teambutterflyeffect.flytrap.system.lifecycle.ObjectContext
@@ -13,13 +14,13 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup
 import kotlin.math.abs
 
+val defaultModifier = 0.8
+
 const val TAG = "RobotDriveComponent"
 class RobotDriveComponent(context: LifecycleContext) : LifecycleObject(context) {
-    var data: RobotDriveData = RobotDriveData(0.0, 0.0)
-    var dataExpiration: Long = 0
+    var driveMessage: RobotDriveMessage? = null
     var modifier: Double = 1.0
     var modifierExpiration: Long? = 0
-    val defaultModifier = 0.8
 
     val leftMotors = arrayOf(
         WPI_VictorSPX(0),
@@ -54,16 +55,21 @@ class RobotDriveComponent(context: LifecycleContext) : LifecycleObject(context) 
     )
 
     override fun onTick(context: ObjectContext<*>) {
-        if(dataExpiration > System.currentTimeMillis()) {
-            modifierExpiration?.takeUnless {
-                it > System.currentTimeMillis()
+        var speed = 0.0
+        var rotation = 0.0
+        driveMessage?.takeIf {
+            it.isValid()
+        }?.also {
+            modifierExpiration?.takeUnless { expiration ->
+                expiration > System.currentTimeMillis()
             }.let {
                 modifier = defaultModifier
             }
-            drive.arcadeDrive(data.speed * modifier, data.rotation * abs(modifier))
-        } /*else {
-            log(TAG, "Ignore expired data!")
-        }*/
+            speed = it.content.speed * if(it.allowModifier) modifier else defaultModifier
+            rotation = it.content.rotation * if(it.allowModifier) abs(modifier) else defaultModifier
+        }
+
+        drive.arcadeDrive(speed, rotation)
     }
 
     @Synchronized fun use(): Boolean {
@@ -74,8 +80,8 @@ class RobotDriveComponent(context: LifecycleContext) : LifecycleObject(context) 
         //log(TAG, "Message: $message", LogLevel.VERBOSE)
         super.onMessage(context, message)
         if(message is RobotDriveMessage && message.isValid()) {
-            data = message.content
-            dataExpiration = message.validUntil!!
+            if(driveMessage != null && message.content.let { abs(it.speed) + abs(it.rotation) < 0.05 }) return
+            driveMessage = message
             //drive.arcadeDrive(message.content.speed, message.content.rotation)
         } else if(message is DriveModifierMessage && message.isValid()) {
             modifier = message.content(modifier, defaultModifier)

@@ -3,6 +3,7 @@ package com.teambutterflyeffect.flytrap.robot.component
 import com.teambutterflyeffect.flytrap.component.baller.light.BallerLightComponent
 import com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive.RobotDriveComponent
 import com.teambutterflyeffect.flytrap.component.baller.shooter.ShooterComponent
+import com.teambutterflyeffect.flytrap.component.debugserver.RobotConfigurationComponent
 import com.teambutterflyeffect.flytrap.component.driverassist.DriverAssistModule
 import com.teambutterflyeffect.flytrap.component.flylogger.api.LogServer
 import com.teambutterflyeffect.flytrap.component.fvm2.FlytrapVisionModule
@@ -26,6 +27,7 @@ class RobotComponent(context: LifecycleContext) : LifecycleObject(context) {
         ObjectReference(ShooterComponent::class.java),
         ObjectReference(BallerLightComponent::class.java),
         ObjectReference(IntakeComponent::class.java),
-        ObjectReference(TowerModule::class.java)
+        ObjectReference(TowerModule::class.java),
+        ObjectReference(RobotConfigurationComponent::class.java),
     )
 }

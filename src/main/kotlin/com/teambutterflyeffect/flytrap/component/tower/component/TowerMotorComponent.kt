@@ -14,7 +14,7 @@ class TowerMotorComponent(context: LifecycleContext) : LifecycleObject(context) 
 
     override fun onTick(context: ObjectContext<*>) {
         if(message?.isValid() == false) message = null
-        motor.set(VictorSPXControlMode.PercentOutput, ((message?.content?.value ?: 0.0) * 0.7))
+        motor.set(VictorSPXControlMode.PercentOutput, ((message?.content?.value ?: 0.0) * 0.8))
     }
 
     override fun subscriptions(): Array<Class<out ObjectMessage>> = arrayOf(

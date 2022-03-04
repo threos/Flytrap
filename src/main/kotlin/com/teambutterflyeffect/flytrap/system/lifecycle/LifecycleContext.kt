@@ -4,6 +4,7 @@ import com.teambutterflyeffect.flytrap.system.lifecycle.data.ObjectMessage
 import com.teambutterflyeffect.flytrap.system.error.UnknownLifecycleObjectConstructorException
 import com.teambutterflyeffect.flytrap.system.execution.engine.FlytrapExecutor
 import com.teambutterflyeffect.flytrap.system.lifecycle.objects.ObjectReference
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
@@ -24,8 +25,10 @@ object LifecycleContext {
     }
 
     fun <T : ObjectMessage> post(message: T) = runBlocking {
-        synchronized(messageLock) {
-            messageQueue.add(message)
+        launch {
+            synchronized(messageLock) {
+                messageQueue.add(message)
+            }
         }
     }
 

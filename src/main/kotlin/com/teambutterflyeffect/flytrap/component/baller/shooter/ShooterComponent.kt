@@ -20,7 +20,7 @@ class ShooterComponent(context: LifecycleContext) : LifecycleObject(context) {
          field = value
          value?.content?.let {
              if(speed == 0.0) {
-                 warningEnd = System.currentTimeMillis() + 600
+                 warningEnd = System.currentTimeMillis() + 400
                  warmupStage1End = warningEnd + warmupDuration
                  warmupEnd = warmupStage1End + 2000
              }
@@ -39,7 +39,8 @@ class ShooterComponent(context: LifecycleContext) : LifecycleObject(context) {
 
     override fun onCreate(context: ObjectContext<*>) {
         super.onCreate(context)
-        motorLeft.inverted = true
+        motorLeft.inverted = false
+        motorRight.inverted = true
     }
 
     fun spin(speed: Double) {
