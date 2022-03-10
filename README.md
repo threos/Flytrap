@@ -33,7 +33,9 @@
 - [x] MultimethodServer component for custom HTTP communication
 
 ### ⚠️ DISCLAIMER: Flytrap is in alpha stage, and it's still under active development. As it's a new library it will likely to have more issues. That also means core interfaces and references can change at any time. 
-Please make sure that your team can/will handle any possible problem and future change before using Flytrap in a robot codebase.
+Please make sure that your team can/will handle any possible problem and future change before using Flytrap in a robot codebase. 
+
+We don't take responsibility for any form of failure or unexpected behaviour.
 
 ## Getting started
 
