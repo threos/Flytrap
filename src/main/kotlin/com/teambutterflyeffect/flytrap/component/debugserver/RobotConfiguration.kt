@@ -1,7 +1,7 @@
 package com.teambutterflyeffect.flytrap.component.debugserver
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.teambutterflyeffect.flytrap.component.driverassist.Alliance
+import edu.wpi.first.wpilibj.DriverStation
 
 var ROBOT_CONFIGURATION = RobotConfiguration()
 
@@ -11,7 +11,7 @@ data class RobotConfiguration(
     @JsonProperty("driver_assist_direction")
     var driverAssistInitialDirection: Direction = Direction.LEFT,
     @JsonProperty("alliance")
-    var alliance: Alliance = Alliance.RED,
+    var alliance: DriverStation.Alliance = DriverStation.Alliance.Red,
     @JsonProperty("baller_ideal_y")
     var BALLER_IDEAL_Y_POINT: Double = 0.88,
     @JsonProperty("baller_ideal_x")
@@ -21,9 +21,9 @@ data class RobotConfiguration(
     @JsonProperty("baller_ideal_target")
     var BALLER_IDEAL_TARGET_AREA: Int = 500,
     @JsonProperty("baller_ideal_target")
-    var BALLER_RPM: Int = 7500,
+    var BALLER_RPM: Int = 4850,
     @JsonProperty("baller_ideal_target")
-    var BALLER_LOW_RPM: Int = 3600,
+    var BALLER_LOW_RPM: Int = 2600,
 )
 
 enum class Direction(val rotation: Double) {
