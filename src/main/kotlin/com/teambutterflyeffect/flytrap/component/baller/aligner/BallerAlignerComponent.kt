@@ -39,8 +39,8 @@ class BallerAlignerComponent(context: LifecycleContext) : LifecycleObject(contex
                 RobotDriveMessage(
                     Intents.create(context, RobotDriveComponent::class.java),
                     RobotDriveData(
-                        (((1.0 - message.content.y) - ROBOT_CONFIGURATION.BALLER_IDEAL_Y_POINT).takeIf { abs(it) > 0.1 } ?: 0.0).sign * 0.62,
-                        ((message.content.x - ROBOT_CONFIGURATION.BALLER_IDEAL_X_POINT).takeIf { abs(it) > 0.08 } ?: 0.0).sign * 0.6
+                        (((1.0 - message.content.y) - ROBOT_CONFIGURATION.BALLER_IDEAL_Y_POINT).takeIf { abs(it) > 0.1 } ?: 0.0).sign * 0.68,
+                        ((message.content.x - ROBOT_CONFIGURATION.BALLER_IDEAL_X_POINT).takeIf { abs(it) > 0.08 } ?: 0.0).sign * 0.62
                     ),
                     timeoutInMillis = 200,
                     allowModifier = false,

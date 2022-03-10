@@ -37,7 +37,7 @@ class BallerFinderComponent(context: LifecycleContext) : LifecycleObject(context
             this@BallerFinderComponent.context.post(
                 RobotDriveMessage(
                     Intents.create(context, RobotDriveComponent::class.java),
-                    RobotDriveData(0.62, 0.0),
+                    RobotDriveData(0.7, 0.0),
                     timeoutInMillis = 100
                 )
             )

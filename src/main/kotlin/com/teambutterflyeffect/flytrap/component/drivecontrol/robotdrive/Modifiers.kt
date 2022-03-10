@@ -4,7 +4,7 @@ import kotlin.math.sign
 
 class ReverseModifier: ModifierBuilder {
     override fun invoke(previous: Double, default: Double): Double {
-        return (-(previous.sign) * default)
+        return -previous.sign * default
     }
 }
 

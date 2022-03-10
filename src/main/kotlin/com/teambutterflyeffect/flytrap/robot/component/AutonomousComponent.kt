@@ -9,6 +9,9 @@ import com.teambutterflyeffect.flytrap.component.baller.light.OperationLightComp
 import com.teambutterflyeffect.flytrap.component.baller.shooter.ShooterComponent
 import com.teambutterflyeffect.flytrap.component.baller.shooter.ShooterMessage
 import com.teambutterflyeffect.flytrap.component.debugserver.ROBOT_CONFIGURATION
+import com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive.RobotDriveComponent
+import com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive.RobotDriveData
+import com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive.RobotDriveMessage
 import com.teambutterflyeffect.flytrap.component.driverassist.targetgravity.message.GravityForceMessage
 import com.teambutterflyeffect.flytrap.component.flylogger.LogLevel
 import com.teambutterflyeffect.flytrap.component.flylogger.log
@@ -24,7 +27,7 @@ import com.teambutterflyeffect.flytrap.system.lifecycle.objects.ObjectReference
 
 const val TAG = "AutonomousComponent"
 class AutonomousComponent(context: LifecycleContext) : LifecycleObject(context) {
-    var step = 0
+    /*var step = 0
     set(value) {
         field = value
         when(value) {
@@ -33,15 +36,15 @@ class AutonomousComponent(context: LifecycleContext) : LifecycleObject(context) 
                 context.attach(alignerReference)
             }
         }
-    }
+    }*/
 
     var begin = 0L
 
-    private val ballerFinderReference = ObjectReference(BallerFinderComponent::class.java)
-    private val alignerReference = ObjectReference(BallerAlignerComponent::class.java)
+    /*private val ballerFinderReference = ObjectReference(BallerFinderComponent::class.java)
+    private val alignerReference = ObjectReference(BallerAlignerComponent::class.java)*/
 
     override fun onTick(context: ObjectContext<*>) {
-        if(System.currentTimeMillis() - begin < 100) {
+        /*if(System.currentTimeMillis() - begin < 100) {
             this@AutonomousComponent.context.post(
                 TowerMotorMessage(
                     Intents.create(context, TowerMotorComponent::class.java),
@@ -49,10 +52,37 @@ class AutonomousComponent(context: LifecycleContext) : LifecycleObject(context) 
                     timeoutInMillis = 50,
                     )
             )
-        }
+        }*/
 
         (System.currentTimeMillis() - begin).let {
-            if(it < 100) {
+            if(it in 500..6000) {
+                this@AutonomousComponent.context.post(
+                    ShooterMessage(
+                        Intents.create(context, ShooterComponent::class.java),
+                        ROBOT_CONFIGURATION.BALLER_RPM,
+                        timeoutInMillis = 200
+                    )
+                )
+            }
+            if(it in 4000..6000) {
+                this@AutonomousComponent.context.post(
+                    TowerMotorMessage(
+                        Intents.create(context, TowerMotorComponent::class.java),
+                        IntakeDirection.IN,
+                        timeoutInMillis = 200
+                    )
+                )
+            }
+                if(it in 7000..9500) {
+                this@AutonomousComponent.context.post(
+                    RobotDriveMessage(
+                        Intents.create(context, RobotDriveComponent::class.java),
+                        RobotDriveData(0.8, 0.0),
+                        timeoutInMillis = 100
+                    )
+                )
+            }
+            /*if(it < 100) {
                 this@AutonomousComponent.context.post(
                     TowerMotorMessage(
                         Intents.create(context, TowerMotorComponent::class.java),
@@ -86,7 +116,7 @@ class AutonomousComponent(context: LifecycleContext) : LifecycleObject(context) 
                         timeoutInMillis = 100
                     )
                 )
-            }
+            }*/
         }
 
 
@@ -94,7 +124,7 @@ class AutonomousComponent(context: LifecycleContext) : LifecycleObject(context) 
 
     override fun onCreate(context: ObjectContext<*>) {
         super.onCreate(context)
-        this@AutonomousComponent.context.attach(ballerFinderReference)
+        //this@AutonomousComponent.context.attach(ballerFinderReference)
         log(TAG, "onCreate", LogLevel.VERBOSE)
         begin = System.currentTimeMillis()
     }
@@ -105,14 +135,15 @@ class AutonomousComponent(context: LifecycleContext) : LifecycleObject(context) 
         if(message is GravityForceMessage && message.isValid()) {
             //log(TAG, "Valid gravity message!", LogLevel.VERBOSE)
         } else if(message is BallerFinderResultMessage && message.isValid()) {
-            step = 1
+            log(TAG, "BallerFinderResultMessage", LogLevel.VERBOSE)
+            //step = 1
         }
     }
 
     override fun onDestroy(context: ObjectContext<*>) {
         super.onDestroy(context)
-        this@AutonomousComponent.context.detach(ballerFinderReference)
-        this@AutonomousComponent.context.detach(alignerReference)
+        //this@AutonomousComponent.context.detach(ballerFinderReference)
+        //this@AutonomousComponent.context.detach(alignerReference)
     }
 
     override fun subscriptions(): Array<Class<out ObjectMessage>> = arrayOf(
@@ -121,7 +152,7 @@ class AutonomousComponent(context: LifecycleContext) : LifecycleObject(context) 
     )
 
     override fun components(): Array<ObjectReference<out LifecycleObject>> = arrayOf(
-        ObjectReference(AutopilotComponent::class.java)
+        //ObjectReference(AutopilotComponent::class.java)
         //ObjectReference(OperationLightComponent::class.java)
     )
 

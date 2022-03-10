@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup
 import kotlin.math.abs
 
-val defaultModifier = 0.8
+val defaultModifier = 0.9
 
 const val TAG = "RobotDriveComponent"
 class RobotDriveComponent(context: LifecycleContext) : LifecycleObject(context) {
@@ -86,6 +86,7 @@ class RobotDriveComponent(context: LifecycleContext) : LifecycleObject(context) 
         } else if(message is DriveModifierMessage && message.isValid()) {
             modifier = message.content(modifier, defaultModifier)
             modifierExpiration = message.validUntil
+            log(TAG, "MODIFIER: $modifier EXP: $modifierExpiration")
         } else {
             log(TAG, "INVALID MESSAGE: $message", LogLevel.WARNING)
         }

@@ -12,9 +12,12 @@ import com.teambutterflyeffect.flytrap.component.debugserver.ROBOT_CONFIGURATION
 import com.teambutterflyeffect.flytrap.component.drivecontrol.hanger.HangerComponent
 import com.teambutterflyeffect.flytrap.component.drivecontrol.hanger.HangerMessage
 import com.teambutterflyeffect.flytrap.component.drivecontrol.robotdrive.*
+import com.teambutterflyeffect.flytrap.component.driverassist.targetgravity.GravityObject
 import com.teambutterflyeffect.flytrap.component.driverassist.targetgravity.message.GravityForceMessage
 import com.teambutterflyeffect.flytrap.component.flylogger.LogLevel
 import com.teambutterflyeffect.flytrap.component.flylogger.log
+import com.teambutterflyeffect.flytrap.component.fvm2.protocol.MapDataMessage
+import com.teambutterflyeffect.flytrap.component.fvm2.protocol.VisionMapEntity
 import com.teambutterflyeffect.flytrap.component.intake.IntakeComponent
 import com.teambutterflyeffect.flytrap.component.intake.IntakeDirection
 import com.teambutterflyeffect.flytrap.component.intake.IntakeMessage
@@ -26,6 +29,7 @@ import com.teambutterflyeffect.flytrap.system.lifecycle.ObjectContext
 import com.teambutterflyeffect.flytrap.system.lifecycle.data.ObjectMessage
 import com.teambutterflyeffect.flytrap.system.lifecycle.objects.Intents
 import com.teambutterflyeffect.flytrap.system.lifecycle.objects.ObjectReference
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.XboxController
 import kotlin.math.abs
@@ -69,14 +73,15 @@ class TeleopComponent(context: LifecycleContext) : LifecycleObject(context) {
                     context,
                     RobotDriveComponent::class.java
                 ),
-                RobotDriveData(y, steer * 0.8 + ((gravityMessage?.let {
+                RobotDriveData(y, steer * 0.95 /*+ ((gravityMessage?.let {
                     if (it.isValid()) {
                         unit(it.content.x) * (y * 0.8) * it.content.force
                     } else {
                         0.0
                     }
-                } ?: 0.0) * -(1.0 - abs(x)) * 0.8)
+                } ?: 0.0) * -(1.0 - abs(x)) * 0.8)*/
                 ),
+                allowModifier = true,
             )
         )
 
@@ -92,11 +97,12 @@ class TeleopComponent(context: LifecycleContext) : LifecycleObject(context) {
         )
 
         if(controller.xButton && lastXPressed < System.currentTimeMillis() - 200) {
+            log(TAG, "Reverse!")
             this@TeleopComponent.context.post(
                 DriveModifierMessage(
                     Intents.create(context, RobotDriveComponent::class.java),
                     ReverseModifier(),
-                    timeoutInMillis = null,
+                    timeoutInMillis = 100000,
                 )
             )
             lastXPressed = System.currentTimeMillis()
@@ -203,7 +209,7 @@ class TeleopComponent(context: LifecycleContext) : LifecycleObject(context) {
             )
         }
 
-        if(controller.yButton && lastYPressed < System.currentTimeMillis() - 200) {
+        if(controller.yButton) {
             this@TeleopComponent.context.post(
                 ShooterMessage(
                     Intents.create(
@@ -213,7 +219,7 @@ class TeleopComponent(context: LifecycleContext) : LifecycleObject(context) {
                     ROBOT_CONFIGURATION.BALLER_LOW_RPM
                 )
             )
-            lastYPressed = System.currentTimeMillis()
+            //lastYPressed = System.currentTimeMillis()
         }
 
     }
@@ -249,13 +255,39 @@ class TeleopComponent(context: LifecycleContext) : LifecycleObject(context) {
         if (message is GravityForceMessage && message.isValid()) {
             log(TAG, "Gravity message")
             gravityMessage = message
+        } else if(message is MapDataMessage && message.isValid()) {
+            log(TAG, "MapData message")
+            for(ball in message.entities) {
+                if(ballGravity(ball) == true) {
+                    this@TeleopComponent.context.post(
+                        IntakeMessage(
+                            Intents.create(
+                                context,
+                                IntakeComponent::class.java
+                            ),
+                            IntakeDirection.IN,
+                            timeoutInMillis = 200
+                        )
+                    )
+                    break
+                }
+            }
         } else {
             log(TAG, "Invalid gravity message")
         }
     }
 
+    fun ballGravity(entity: VisionMapEntity): Boolean? {
+        return when (entity.id) {
+            "blue_ball" -> ROBOT_CONFIGURATION.alliance == DriverStation.Alliance.Blue
+            "red_ball" ->ROBOT_CONFIGURATION.alliance == DriverStation.Alliance.Red
+            else -> null
+        }
+    }
+
     override fun subscriptions(): Array<Class<out ObjectMessage>> = arrayOf(
         GravityForceMessage::class.java,
+        MapDataMessage::class.java
     )
 
     override fun components(): Array<ObjectReference<out LifecycleObject>> = arrayOf(

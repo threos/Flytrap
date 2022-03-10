@@ -20,11 +20,11 @@ class IntakeComponent(context: LifecycleContext) : LifecycleObject(context) {
     override fun onTick(context: ObjectContext<*>) {
         if(message?.isValid() == false) message = null
 
-        motor.set(VictorSPXControlMode.PercentOutput, min(max(message?.content?.value ?: 0.0, -1.0), 0.65) * -1.0)
+        motor.set(VictorSPXControlMode.PercentOutput, min(max(message?.content?.value ?: 0.0, -1.0), 0.65) * -0.8)
     }
 
     override fun components(): Array<ObjectReference<out LifecycleObject>> = arrayOf(
-        ObjectReference(IntakeActivatorComponent::class.java)
+        //ObjectReference(IntakeActivatorComponent::class.java)
     )
 
     override fun subscriptions(): Array<Class<out ObjectMessage>> = arrayOf(

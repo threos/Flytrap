@@ -1,6 +1,6 @@
 package com.teambutterflyeffect.flytrap.component.driverassist.targetgravity
 
-import com.teambutterflyeffect.flytrap.component.driverassist.Alliance
+import com.teambutterflyeffect.flytrap.component.debugserver.ROBOT_CONFIGURATION
 import com.teambutterflyeffect.flytrap.component.driverassist.AssistConfig
 import com.teambutterflyeffect.flytrap.component.driverassist.targetgravity.message.GravityForceMessage
 import com.teambutterflyeffect.flytrap.component.flylogger.LogLevel
@@ -12,6 +12,8 @@ import com.teambutterflyeffect.flytrap.system.lifecycle.LifecycleObject
 import com.teambutterflyeffect.flytrap.system.lifecycle.ObjectContext
 import com.teambutterflyeffect.flytrap.system.lifecycle.data.ObjectMessage
 import com.teambutterflyeffect.flytrap.system.lifecycle.objects.Intents
+import edu.wpi.first.wpilibj.DriverStation
+
 class TargetGravityComponent(context: LifecycleContext) : LifecycleObject(context) {
     val TAG = "TargetGravityComponent"
     override fun onTick(context: ObjectContext<*>) {}
@@ -43,14 +45,14 @@ class TargetGravityComponent(context: LifecycleContext) : LifecycleObject(contex
 
     fun gravityObjectFromMapEntity(entity: VisionMapEntity): GravityObject? {
         return when (entity.id) {
-            "blue_ball" -> ballGravity(Alliance.BLUE, entity)
-            "red_ball" -> ballGravity(Alliance.RED, entity)
+            "blue_ball" -> ballGravity(DriverStation.Alliance.Blue, entity)
+            "red_ball" -> ballGravity(DriverStation.Alliance.Red, entity)
             else -> null
         }
     }
 
-    fun ballGravity(ballOf: Alliance, entity: VisionMapEntity): GravityObject {
-        val mass = AssistConfig.BALL_MASS * (if (ballOf == AssistConfig.CURRENT_ALLIANCE) {
+    fun ballGravity(ballOf: DriverStation.Alliance, entity: VisionMapEntity): GravityObject {
+        val mass = AssistConfig.BALL_MASS * (if (ballOf == ROBOT_CONFIGURATION.alliance) {
             1.0f
         } else -1.0f)
 
