@@ -16,6 +16,8 @@
 
 * 🔒 Thread-safe
 
+* 📊 Parallel execution
+
 * ⏱ Lifecycle-aware
 
 * 🔨 Customizable
