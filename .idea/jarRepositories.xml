@@ -51,5 +51,10 @@
       <option name="name" value="WPI3f48eb8c-50fe-43a6-9cb7-44c86353c4cb_0Release" />
       <option name="url" value="https://maven.revrobotics.com/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="GitHubPackages" />
+      <option name="name" value="GitHubPackages" />
+      <option name="url" value="https://maven.pkg.github.com/threos/Flytrap" />
+    </remote-repository>
   </component>
 </project>

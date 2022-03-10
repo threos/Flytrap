@@ -4,6 +4,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.5.10'
     id "edu.wpi.first.GradleRIO" version "2022.3.1"
     id 'application'
+    id 'maven-publish'
 }
 
 group = 'com.teambutterflyeffect'
@@ -15,6 +16,27 @@ repositories {
     mavenCentral()
     maven {
         url "https://devsite.ctr-electronics.com/maven/release/"
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/threos/Flytrap")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.token") ?: System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        register("jar", MavenPublication) {
+            from(components["java"])
+            pom {
+                url.set("https://github.com/threos/Flytrap.git")
+            }
+        }
     }
 }
 
