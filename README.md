@@ -1,4 +1,4 @@
-# <img height="100" src="https://voynich.dashelvest.com/webasset/img/flytrap-text-logo-low.png"/>
+# <img height="100" src="https://storage.fband.com.tr/webasset/img/flytrap-text-logo-low.png"/>
 # Flytrap - Lifecycle-aware objects and multithreaded execution for FRC robots
 
 ## 🦋 Features
