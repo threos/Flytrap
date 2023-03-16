@@ -1,5 +1,5 @@
 # <img height="100" src="https://storage.fband.com.tr/webasset/img/flytrap-text-logo-low.png"/>
-# Flytrap - Lifecycle-aware objects and multithreaded execution for FRC robots
+# Flytrap - Lifecycle-aware objects and multithreaded execution for WPILib/FRC robots
 
 ## 🦋 Features
 **Some key features of Flytrap:**
