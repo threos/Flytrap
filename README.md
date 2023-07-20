@@ -1,4 +1,4 @@
-# <img height="150" src="https://i.ibb.co/q17QzDK/FLYTRAP-mres.png"/>
+# <img height="150" src="https://cdn.xreos.co/webasset/images/FLYTRAP-mres.png"/>
 # Flytrap - Lifecycle-aware objects and multithreaded execution for WPILib/FRC robots
 
 ## 🦋 Features
